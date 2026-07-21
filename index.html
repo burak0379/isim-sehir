@@ -121,6 +121,7 @@
   .unv{font-size:9px;color:var(--gold);border:1px solid rgba(255,210,63,.4);border-radius:6px;padding:1px 4px;flex:none}
   .minibtn{flex:none;font-size:12px;padding:4px 7px;border-radius:8px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--muted)}
   .minibtn.on{background:rgba(182,255,58,.16);border-color:var(--lime);color:var(--lime)}
+  .minibtn.go{background:rgba(34,230,255,.18);border-color:var(--cyan);color:var(--cyan);font-weight:600}
 
   /* scoreboard */
   .lb-row{display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:16px;margin-bottom:9px;background:rgba(0,0,0,.22);border:1px solid var(--line)}
@@ -189,10 +190,11 @@ const CATS=[
  {id:"yemek",name:"Yemek",icon:"🍽️",list:"yemek"},
  {id:"esya",name:"Eşya",icon:"📦",list:"esya",open:true},
  {id:"meslek",name:"Meslek",icon:"💼",list:"meslek"},
- {id:"marka",name:"Marka",icon:"®️",open:true},
+ {id:"kadinismi",name:"Kadın İsmi",icon:"👩",list:"kadin",open:true},
 ];
 const SURPRISE=[
- {id:"film",name:"Film",icon:"🎬",open:true},{id:"kadinismi",name:"Kadın İsmi",icon:"👩",list:"kadin",open:true},
+ {id:"film",name:"Film",icon:"🎬",open:true},{id:"sarki",name:"Şarkı",icon:"🎵",open:true},
+ {id:"kitap",name:"Kitap",icon:"📖",open:true},{id:"marka",name:"Marka",icon:"®️",open:true},
  {id:"oyun",name:"Video Oyunu",icon:"🎮",open:true},{id:"dizi",name:"Dizi",icon:"📺",open:true},
  {id:"kahraman",name:"Süper Kahraman",icon:"🦸",open:true},{id:"renk",name:"Renk",icon:"🎨",list:"renk"},
  {id:"spor",name:"Spor Dalı",icon:"⚽",open:true},{id:"marka2",name:"Araba Markası",icon:"🚗",open:true},
@@ -203,13 +205,13 @@ const THEMES=["Klasikler / Efsaneler","90'lar","Doğa","Şehir hayatı","Tatil",
 
 /* ---- Kelime listeleri (offline çekirdek) ---- */
 const LISTS={
-hayvan:"aslan kaplan ayı at eşek katır inek öküz koyun keçi tavuk horoz ördek kaz hindi köpek kedi fare sıçan tavşan kurt tilki çakal geyik ceylan zebra zürafa fil gergedan su aygırı maymun goril şempanze panda koala kanguru timsah kertenkele yılan kaplumbağa kurbağa balık köpekbalığı yunus balina ahtapot kalamar yengeç ıstakoz karides midye arı karınca sinek sivrisinek kelebek örümcek akrep salyangoz solucan kartal şahin baykuş karga serçe güvercin papağan penguen deve lama alpaka samur sansar gelincik kirpi sincap yarasa köstebek fok mors leopar çita puma jaguar vaşak bizon manda rakun bukalemun iguana semender flamingo leylek pelikan martı kuğu bülbül kanarya devekuşu albatros hamster porsuk kokarca panter çekirge sülün keklik bıldırcın denizanası istiridye",
-bitki:"gül lale papatya menekşe sümbül karanfil orkide zambak nergis kardelen gelincik açelya begonya ortanca yasemin leylak manolya kamelya glayöl kasımpatı çiğdem siklamen fesleğen nane kekik biberiye adaçayı lavanta rezene dereotu maydanoz roka tere ıspanak marul semizotu ısırgan ebegümeci meşe çam kavak söğüt kayın gürgen ıhlamur çınar dişbudak ceviz kestane fındık badem zeytin incir asma sarmaşık kaktüs yosun mantar buğday arpa yulaf çavdar mısır pirinç ayçiçeği mercimek nohut fasulye bezelye domates biber patlıcan kabak salatalık havuç patates soğan sarımsak pırasa lahana karnabahar brokoli enginar kereviz turp pancar bamya kiraz vişne elma armut şeftali kayısı erik nar portakal limon mandalina muz çilek böğürtlen ahududu dut kavun karpuz üzüm defne funda zakkum",
-sehir:"adana adıyaman afyonkarahisar ağrı amasya ankara antalya artvin aydın balıkesir bilecik bingöl bitlis bolu burdur bursa çanakkale çankırı çorum denizli diyarbakır edirne elazığ erzincan erzurum eskişehir gaziantep giresun gümüşhane hakkari hatay ısparta mersin istanbul izmir kars kastamonu kayseri kırklareli kırşehir kocaeli konya kütahya malatya manisa kahramanmaraş mardin muğla muş nevşehir niğde ordu rize sakarya samsun siirt sinop sivas tekirdağ tokat trabzon tunceli şanlıurfa uşak van yozgat zonguldak aksaray bayburt karaman kırıkkale batman şırnak bartın ardahan ığdır yalova karabük kilis osmaniye düzce kadıköy üsküdar beşiktaş şişli fatih beyoğlu bakırköy kartal pendik maltepe ataşehir sarıyer başakşehir esenyurt ümraniye çankaya keçiören mamak etimesgut bornova konak karşıyaka buca çeşme alanya manavgat kemer bodrum fethiye marmaris datça kuşadası çorlu gebze iznik ürgüp göreme çubuk lüleburgaz paris londra berlin roma madrid moskova tokyo pekin delhi kahire atina viyana amsterdam brüksel prag budapeşte lizbon dublin stokholm oslo boston münih milano barselona venedik dubai bağdat tahran şam beyrut bakü tiflis saraybosna seul osaka bangkok jakarta mumbai taşkent semerkant astana kudüs mekke medine amman rabat marakeş kazablanka lagos nairobi rio buenos aires lima bogota santiago meksiko montreal vancouver seattle miami dallas houston atlanta glasgow manchester liverpool edinburgh lyon marsilya nice torino floransa sevilla valensiya malaga porto rotterdam frankfurt hamburg köln stuttgart cenevre zürih singapur",
+hayvan:"aslan kaplan ayı at eşek katır inek öküz koyun keçi tavuk horoz ördek kaz hindi köpek kedi fare sıçan tavşan kurt tilki çakal geyik ceylan zebra zürafa fil gergedan su aygırı maymun goril şempanze panda koala kanguru timsah kertenkele yılan kaplumbağa kurbağa balık köpekbalığı yunus balina ahtapot kalamar yengeç ıstakoz karides midye arı karınca sinek sivrisinek kelebek örümcek akrep salyangoz solucan kartal şahin baykuş karga serçe güvercin papağan penguen deve lama alpaka samur sansar gelincik kirpi sincap yarasa köstebek fok mors leopar çita puma jaguar vaşak bizon manda rakun bukalemun iguana semender flamingo leylek pelikan martı kuğu bülbül kanarya devekuşu albatros hamster porsuk kokarca panter çekirge sülün keklik bıldırcın denizanası istiridye antilop kunduz orka narval karaca sığın impala tapir okapi lemur sırtlan su samuru deniz aslanı yaban keçisi dağ keçisi armadillo pangolin karınca yiyen vombat serval karakulak yaban kedisi uçan sincap tembel hayvan akbaba atmaca doğan kerkenez puhu saka karatavuk sığırcık kumru üveyik balıkçıl turna ağaçkakan kırlangıç ibibik guguk kuşu tavus deniz yıldızı mercan sünger",
+bitki:"gül lale papatya menekşe sümbül karanfil orkide zambak nergis kardelen gelincik açelya begonya ortanca yasemin leylak manolya kamelya glayöl kasımpatı çiğdem siklamen fesleğen nane kekik biberiye adaçayı lavanta rezene dereotu maydanoz roka tere ıspanak marul semizotu ısırgan ebegümeci meşe çam kavak söğüt kayın gürgen ıhlamur çınar dişbudak ceviz kestane fındık badem zeytin incir asma sarmaşık kaktüs yosun mantar buğday arpa yulaf çavdar mısır pirinç ayçiçeği mercimek nohut fasulye bezelye domates biber patlıcan kabak salatalık havuç patates soğan sarımsak pırasa lahana karnabahar brokoli enginar kereviz turp pancar bamya kiraz vişne elma armut şeftali kayısı erik nar portakal limon mandalina muz çilek böğürtlen ahududu dut kavun karpuz üzüm defne funda zakkum krizantem şakayık fulya gardenya petunya sardunya kartopu mimoza hanımeli aslanağzı kadife çiçeği horozibiği gündüzsefası haşhaş keten susam çay kahve kakao vanilya tarçın zencefil zerdeçal safran kimyon kişniş çörek otu sumak mersin okaliptüs sedir ardıç servi köknar ladin şimşir taflan kuşburnu alıç muşmula ayva avokado mango ananas papaya greyfurt bergamot turunç",
+sehir:"adana adıyaman afyonkarahisar ağrı amasya ankara antalya artvin aydın balıkesir bilecik bingöl bitlis bolu burdur bursa çanakkale çankırı çorum denizli diyarbakır edirne elazığ erzincan erzurum eskişehir gaziantep giresun gümüşhane hakkari hatay ısparta mersin istanbul izmir kars kastamonu kayseri kırklareli kırşehir kocaeli konya kütahya malatya manisa kahramanmaraş mardin muğla muş nevşehir niğde ordu rize sakarya samsun siirt sinop sivas tekirdağ tokat trabzon tunceli şanlıurfa uşak van yozgat zonguldak aksaray bayburt karaman kırıkkale batman şırnak bartın ardahan ığdır yalova karabük kilis osmaniye düzce kadıköy üsküdar beşiktaş şişli fatih beyoğlu bakırköy kartal pendik maltepe ataşehir sarıyer başakşehir esenyurt ümraniye çankaya keçiören mamak etimesgut bornova konak karşıyaka buca çeşme alanya manavgat kemer bodrum fethiye marmaris datça kuşadası çorlu gebze iznik ürgüp göreme çubuk lüleburgaz paris londra berlin roma madrid moskova tokyo pekin delhi kahire atina viyana amsterdam brüksel prag budapeşte lizbon dublin stokholm oslo boston münih milano barselona venedik dubai bağdat tahran şam beyrut bakü tiflis saraybosna seul osaka bangkok jakarta mumbai taşkent semerkant astana kudüs mekke medine amman rabat marakeş kazablanka lagos nairobi rio buenos aires lima bogota santiago meksiko montreal vancouver seattle miami dallas houston atlanta glasgow manchester liverpool edinburgh lyon marsilya nice torino floransa sevilla valensiya malaga porto rotterdam frankfurt hamburg köln stuttgart cenevre zürih singapur ceyhan ceylanpınar cide cihanbeyli cizre fatsa feke felahiye ferizli finike fındıklı ladik lapseki lalapaşa laçin lice ödemiş özalp özvatan ömerli palandöken palu pamukkale pamukova pasinler patnos payas pazar pazarcık pazaryolu pazaryeri pehlivanköy pertek pervari perşembe pınarbaşı pınarhisar piraziz posof pozantı pursaklar ünye",
 kadin:"ayşe fatma emine hatice zeynep elif meryem merve büşra esra ebru selin derya pınar ceren ceyda damla dilara ela eda gizem gül irem kübra leyla melis nur özge sude şevval tuğçe yasemin yağmur zehra aslı bahar cansu defne gamze hande naz aleyna aylin dilek ece feride gonca hülya ilknur jale kader lale müge nesrin oya perihan rabia sevgi tuğba ülkü vildan yeşim bengü canan duygu esma füsun gökçe handan ilayda kısmet lamia mine nazlı oylum rana simge tijen ummahan yıldız beste cemre didem eylül fadime görkem hazal ipek jülide kevser lena melek nilay pelin reyhan sıla tuana ümmü vuslat yaren zülal",
 ulke:"türkiye almanya fransa ingiltere italya ispanya portekiz hollanda belçika avusturya isviçre yunanistan bulgaristan romanya sırbistan hırvatistan slovenya macaristan polonya çekya slovakya ukrayna rusya norveç isveç finlandiya danimarka irlanda izlanda amerika kanada meksika brezilya arjantin şili peru kolombiya venezuela bolivya uruguay paraguay ekvador japonya çin hindistan pakistan bangladeş endonezya malezya tayland vietnam filipinler kore moğolistan kazakistan özbekistan türkmenistan azerbaycan gürcistan ermenistan iran ırak suriye lübnan israil ürdün suudi arabistan katar kuveyt umman yemen mısır libya tunus cezayir fas sudan etiyopya kenya tanzanya uganda nijerya gana senegal angola kongo kamerun somali zimbabve avustralya yeni zelanda fiji kıbrıs malta estonya letonya litvanya arnavutluk",
 yemek:"kebap döner lahmacun pide mantı köfte pilav bulgur çorba mercimek ezogelin tarhana dolma sarma imambayıldı karnıyarık musakka güveç türlü menemen omlet börek poğaça simit açma gözleme mıhlama kısır cacık haydari humus baklava künefe kadayıf sütlaç kazandibi muhallebi revani şekerpare lokma helva aşure dondurma kurabiye tulumba pasta kek makarna pizza hamburger sandviç tost çiğköfte kokoreç midye balık hamsi levrek çipura somon salata turşu reçel bal kaymak peynir zeytin yumurta sucuk pastırma salam sosis mücver çılbır kumpir katmer",
-meslek:"doktor hemşire öğretmen mühendis avukat hakim savcı mimar eczacı veteriner psikolog pilot kaptan şoför aşçı garson berber kuaför terzi marangoz elektrikçi tesisatçı boyacı kaynakçı çiftçi balıkçı madenci itfaiyeci polis asker bekçi muhasebeci bankacı tüccar satıcı kasap fırıncı pastacı manav gazeteci yazar ressam müzisyen şarkıcı oyuncu dansçı fotoğrafçı yönetmen sunucu spiker ebe fizyoterapist cerrah kimyager biyolog fizikçi matematikçi astronom arkeolog tarihçi tercüman rehber temizlikçi bahçıvan çoban saatçi kuyumcu optisyen memur müdür sekreter danışman hostes komiser general imam futbolcu hakem antrenör sporcu boksör noter müfettiş",
+meslek:"doktor hemşire öğretmen mühendis avukat hakim savcı mimar eczacı veteriner psikolog pilot kaptan şoför aşçı garson berber kuaför terzi marangoz elektrikçi tesisatçı boyacı kaynakçı çiftçi balıkçı madenci itfaiyeci polis asker bekçi muhasebeci bankacı tüccar satıcı kasap fırıncı pastacı manav gazeteci yazar ressam müzisyen şarkıcı oyuncu dansçı fotoğrafçı yönetmen sunucu spiker ebe fizyoterapist cerrah kimyager biyolog fizikçi matematikçi astronom arkeolog tarihçi tercüman rehber temizlikçi bahçıvan çoban saatçi kuyumcu optisyen memur müdür sekreter danışman hostes komiser general imam futbolcu hakem antrenör sporcu boksör noter müfettiş yazılımcı programcı grafiker tasarımcı diyetisyen kardiyolog nörolog dermatolog psikiyatrist onkolog radyolog odyolog ekonomist emlakçı sigortacı reklamcı editör muhabir kameraman seslendirici karikatürist heykeltıraş seramikçi çilingir döşemeci mobilyacı sıvacı badanacı makinist gümrükçü cankurtaran güvenlikçi zabıta gardiyan arıcı avcı ormancı barmen resepsiyonist astronot dalgıç sondajcı jeolog meteorolog botanikçi zoolog mikrobiyolog aktüer mali müşavir",
 esya:"masa sandalye koltuk dolap yatak ayna halı perde lamba saat telefon bilgisayar televizyon buzdolabı fırın ütü süpürge tabak bardak çatal kaşık bıçak tencere tava kupa şişe kalem defter kitap silgi cetvel makas çanta cüzdan anahtar şemsiye gözlük ayakkabı çorap gömlek pantolon ceket şapka eldiven havlu yastık battaniye sabun fırça tarak kova sünger priz ampul mum vazo tablo saksı klavye mikrofon kulaklık terlik kemer yüzük kolye küpe tepsi kavanoz tornavida çekiç valiz",
 renk:"kırmızı mavi yeşil sarı turuncu mor pembe siyah beyaz gri kahverengi lacivert turkuaz bordo bej eflatun gümüş altın vişne hardal indigo magenta camgöbeği krem somon füme antrasit haki",
 isim:"ahmet mehmet mustafa ali hasan hüseyin ibrahim osman ömer yusuf murat emre burak kaan deniz can cem barış onur serkan kemal kerem arda efe ege mert berk tolga volkan fatih selim sinan tarık uğur yağız zafer alperen bora doruk kağan levent metin orhan poyraz recep sefa taner ufuk yalın alper atakan aziz aykut aslan bülent bilal cengiz cihan çağatay çetin çınar davut dursun ercan erkan ersin furkan ferhat faruk gökhan görkem gürkan gökay hakan harun halil hamza ilhan ilker ismail koray kadir kaya mesut muhammed necati nihat nuri oğuz ozan özcan polat rıza ramazan samet semih sercan şahin şükrü tuncay tunç umut veli vedat yavuz yunus ziya"
@@ -268,7 +270,7 @@ async function createRoom(){
     state.code=code;
     await roomRef().set({
       host:state.myId, status:"lobby", createdAt:SV_TS(),
-      settings:{rounds:5,timer:90,modes:{joker:true,bomba:true,cifte:true,surpriz:true,seri:true,tema:true,sabotaj:true}},
+      settings:{rounds:5,timer:90,modes:{cifte:true,joker:true,bomba:true,surpriz:true,tema:true,seri:true}},
       players:{ [state.myId]:{name:state.name,color:AV_COLORS[0],score:0,joinedAt:SV_TS()} }
     });
     attachRoom();
@@ -310,7 +312,7 @@ function leaveRoom(){
 function hostReact(){
   const r=state.room; if(!r) return;
   if(r.status==="playing") maybeValidate();
-  if(r.status==="reveal") applySabotage();
+  if(r.status==="reveal") applyDisputes();
 }
 function maybeValidate(){
   const r=state.room; if(hostBusy||r.status!=="playing"||!r.round) return;
@@ -325,41 +327,56 @@ async function runValidation(){
   await roomRef().child("status").set("validating");
   const r=state.room, cats=(r.round.catIds||[]).map(getCat), cl=r.round.catLetter, players=Object.keys(r.players);
   const ans=r.round.answers||{};
-  const valid={},unver={},cellPts={},roundScore={},need=[];
-  players.forEach(pid=>{valid[pid]={};unver[pid]={};cellPts[pid]={};
+  const baseValid={},unver={},need=[];
+  players.forEach(pid=>{baseValid[pid]={};unver[pid]={};
     cats.forEach(c=>{const w=(ans[pid]&&ans[pid][c.id])||"";const v=localVerdict(c,cl[c.id],w);
-      if(v===true)valid[pid][c.id]=true; else if(v===false)valid[pid][c.id]=false;
-      else{valid[pid][c.id]=false;need.push({pid,cid:c.id,letter:cl[c.id],cat:c.name,word:w});}});});
+      if(v===true)baseValid[pid][c.id]=true; else if(v===false)baseValid[pid][c.id]=false;
+      else{baseValid[pid][c.id]=false;need.push({pid,cid:c.id,letter:cl[c.id],cat:c.name,word:w});}});});
   if(need.length){let verd=null;try{verd=await withTimeout(askAI(need),6000);}catch(e){verd=null;}
-    need.forEach((it,idx)=>{ if(verd&&typeof verd[idx]==="boolean")valid[it.pid][it.cid]=verd[idx];
-      else{valid[it.pid][it.cid]=true;unver[it.pid][it.cid]=true;} });}
-  const counts={};
-  players.forEach(pid=>cats.forEach(c=>{if(valid[pid][c.id]){const k=c.id+"::"+trNorm((ans[pid]&&ans[pid][c.id])||"");counts[k]=(counts[k]||0)+1;}}));
-  players.forEach(pid=>{roundScore[pid]=0;cats.forEach(c=>{const w=(ans[pid]&&ans[pid][c.id])||"";let pts=0;
-    if(valid[pid][c.id]){const k=c.id+"::"+trNorm(w);pts=counts[k]>1?5:10;if(r.settings.modes.joker&&JOKER.has(cl[c.id]))pts*=2;}
-    else if(r.settings.modes.bomba&&c.id===r.round.bomb&&!w)pts=-5;
-    cellPts[pid][c.id]=pts;roundScore[pid]+=pts;});});
-  const results={valid,unver,cellPts,roundScore,theme:{},sab:{},sabApplied:{}};
-  await roomRef().child("round/results").set(results);
+    need.forEach((it,idx)=>{ if(verd&&typeof verd[idx]==="boolean")baseValid[it.pid][it.cid]=verd[idx];
+      else{baseValid[it.pid][it.cid]=true;unver[it.pid][it.cid]=true;} });}
+  const res={baseValid,unver,overrides:{},theme:{}};
+  const sc=computeScores(r,res); res.valid=sc.valid; res.cellPts=sc.cellPts; res.roundScore=sc.roundScore;
+  await roomRef().child("round/results").set(res);
   await roomRef().child("status").set("reveal");
   hostBusy=false;
 }
-function applySabotage(){
+// Puanı tek yerden hesapla: geçerlilik = baseValid + grup düzeltmeleri(overrides); sonra benzersizlik, joker, bomba, tema
+function computeScores(r,res){
+  const cats=(r.round.catIds||[]).map(getCat), cl=r.round.catLetter, players=Object.keys(r.players), ans=r.round.answers||{}, modes=r.settings.modes;
+  const ov=res.overrides||{}, th=res.theme||{}, bv=res.baseValid||{};
+  const valid={};
+  players.forEach(pid=>{valid[pid]={};cats.forEach(c=>{
+    const key=pid+"__"+c.id;
+    let v = bv[pid] ? !!bv[pid][c.id] : false;
+    if(Object.prototype.hasOwnProperty.call(ov,key)) v=!!ov[key];
+    valid[pid][c.id]=v;
+  });});
+  const counts={};
+  players.forEach(pid=>cats.forEach(c=>{if(valid[pid][c.id]){const k=c.id+"::"+trNorm((ans[pid]&&ans[pid][c.id])||"");counts[k]=(counts[k]||0)+1;}}));
+  const cellPts={},roundScore={};
+  players.forEach(pid=>{cellPts[pid]={};roundScore[pid]=0;cats.forEach(c=>{
+    const w=(ans[pid]&&ans[pid][c.id])||"";let pts=0;
+    if(valid[pid][c.id]){const k=c.id+"::"+trNorm(w);pts=counts[k]>1?5:10;if(modes.joker&&JOKER.has(cl[c.id]))pts*=2; if(th[pid]&&th[pid][c.id])pts+=3;}
+    else if(modes.bomba&&c.id===r.round.bomb&&!w)pts=-5;
+    cellPts[pid][c.id]=pts;roundScore[pid]+=pts;
+  });});
+  return {valid,cellPts,roundScore};
+}
+function applyDisputes(){
   const r=state.room; if(hostBusy||!r.round||!r.round.results) return;
-  const sab=r.round.sab||{}, res=r.round.results; res.sabApplied=res.sabApplied||{}; let changed=false;
-  for(const by in sab){
-    if(res.sabApplied[by]) continue;
-    const t=sab[by]; const tgt=t.targetId, cid=t.catId;
-    if(res.valid&&res.valid[tgt]&&res.valid[tgt][cid]){
-      const val=(res.cellPts[tgt][cid]||0);
-      res.valid[tgt][cid]=false; res.cellPts[tgt][cid]=0;
-      if(res.theme&&res.theme[tgt]) res.theme[tgt][cid]=false;
-      res.roundScore[tgt]=(res.roundScore[tgt]||0)-val;
-      res.roundScore[by]=(res.roundScore[by]||0)+Math.max(0,val);
-    }
-    res.sabApplied[by]=true; res.sab=res.sab||{}; res.sab[by]=true; changed=true;
-  }
-  if(changed){ hostBusy=true; roomRef().child("round/results").set(res).then(()=>{hostBusy=false;}); }
+  const disp=r.round.disputes||{};
+  let hit=null;
+  for(const key in disp){ const d=disp[key]; if(!d) continue;
+    const ap=d.approvals||{};
+    if(Object.keys(ap).some(aid=>ap[aid] && aid!==d.by)){ hit={key,d}; break; } }
+  if(!hit) return;
+  hostBusy=true;
+  const res=r.round.results; res.overrides=res.overrides||{};
+  res.overrides[hit.key]=(hit.d.want==="ok");
+  const sc=computeScores(r,res); res.valid=sc.valid; res.cellPts=sc.cellPts; res.roundScore=sc.roundScore;
+  const upd={}; upd["round/results"]=res; upd["round/disputes/"+hit.key]=null;
+  roomRef().update(upd).then(()=>{hostBusy=false;});
 }
 
 /* ---- tur kurma (host) ---- */
@@ -409,18 +426,20 @@ function submitMine(){
   roomRef().update(upd);
   ui.roundN=null; render();
 }
-window.doSab=(targetId,catId)=>{
-  const r=state.room, res=r.round.results;
-  if(res.sab&&res.sab[state.myId]){alert("Sabotaj hakkını kullandın.");return;}
-  if(targetId===state.myId)return;
-  roomRef().child("round/sab/"+state.myId).set({targetId,catId});
-  roomRef().child("round/results/sab/"+state.myId).set(true);
+window.proposeFlip=(pid,cid,want)=>{
+  const key=pid+"__"+cid;
+  roomRef().child("round/disputes/"+key).set({by:state.myId,want,approvals:{}});
+};
+window.approveFlip=(key)=>{ roomRef().child("round/disputes/"+key+"/approvals/"+state.myId).set(true); };
+window.cancelFlip=(key)=>{
+  const d=state.room.round.disputes&&state.room.round.disputes[key];
+  if(d&&d.by===state.myId) roomRef().child("round/disputes/"+key).remove();
 };
 window.hostTheme=(pid,cid)=>{
   if(!amHost())return;
-  const res=state.room.round.results; res.theme=res.theme||{}; res.theme[pid]=res.theme[pid]||{};
-  const cur=!!res.theme[pid][cid]; res.theme[pid][cid]=!cur;
-  res.roundScore[pid]=(res.roundScore[pid]||0)+(cur?-3:3);
+  const r=state.room, res=r.round.results; res.theme=res.theme||{}; res.theme[pid]=res.theme[pid]||{};
+  res.theme[pid][cid]=!res.theme[pid][cid];
+  const sc=computeScores(r,res); res.valid=sc.valid; res.cellPts=sc.cellPts; res.roundScore=sc.roundScore;
   roomRef().child("round/results").set(res);
 };
 
@@ -460,7 +479,7 @@ function viewSetupHelp(){
     <div class="step"><div class="n">5</div><div class="t">Kalıcı olsun istersen Database → <b>Rules</b>: <code class="k">{ "rules": { ".read": true, ".write": true } }</code> (bir parti oyunu için yeterli; linke sahip herkes erişebilir).</div></div>
     <div class="step"><div class="n">6</div><div class="t">Dosyayı yayınla: <code class="k">app.netlify.com/drop</code>'a sürükle-bırak → çıkan linki arkadaşlarınla paylaş. Herkes aynı linki açıp kodu girer.</div></div>
   </div>
-  <div class="tiny">Not: Yapay zekâ hakem yalnızca Claude içinde çalışır. Kendi sitende barındırınca <b>kelime listesi + sabotaj</b> devrededir; uydurma "serbest" cevaplar <b>?</b> ile işaretlenir ve sabotajla çürütülebilir.</div>`;
+  <div class="tiny">Not: Yapay zekâ hakem yalnızca Claude içinde çalışır. Kendi sitende barındırınca <b>kelime listesi + grup kararı</b> devrededir; listede olmayan "serbest" cevaplar <b>?</b> ile işaretlenir, sonuç ekranında <b>grup mutabakatıyla</b> doğru/yanlış yapılabilir.</div>`;
 }
 
 /* ---- HOME ---- */
@@ -497,7 +516,14 @@ function viewLobby(){
       ${id===r.host?'<span class="badge host">👑 KURUCU</span>':''}
       ${id===state.myId?'<span class="badge you">SEN</span>':''}
     </div>`).join("");
-  const modes=[["cifte","🎲","Çifte Harf"],["joker","🎯","Joker 2×"],["bomba","💣","Bomba"],["surpriz","🎁","Sürpriz"],["tema","🌍","Tema"],["sabotaj","😈","Sabotaj"],["seri","🔥","Seri +15"]];
+  const modes=[
+    ["cifte","🎲","Çifte Harf","İki harf çekilir, kategoriler ikiye bölünür"],
+    ["joker","🎯","Joker Harf","Zor harf (F J V Z Ç P) gelirse o sütun 2 kat puan"],
+    ["bomba","💣","Bomba Kategori","Gizli bir kategoriyi boş bırakan −5 yer"],
+    ["surpriz","🎁","Sürpriz Kategori","Her tur değişen ekstra başlık (film, şarkı, marka…)"],
+    ["tema","🌍","Tema Turu","Temaya uyan cevaba kurucu +3 verir"],
+    ["seri","🔥","Seri Bonusu","Üst üste 2 tur birinci olana +15"],
+  ];
   const settingsHost=`
     <div class="card">
       <div class="h">⚙️ Ayarlar</div>
@@ -505,10 +531,11 @@ function viewLobby(){
         <button class="rnd" onclick="setRounds(-1)">−</button><div class="val">${r.settings.rounds}</div><button class="rnd" onclick="setRounds(1)">+</button></div></div>
       <div class="pill"><div class="pt">⏱️ Süre (sn)</div><div class="row" style="flex:none;gap:8px">
         <button class="rnd" onclick="setTimer(-15)">−</button><div class="val">${r.settings.timer}</div><button class="rnd" onclick="setTimer(15)">+</button></div></div>
-      ${modes.map(m=>`<div class="pill" onclick="setMode('${m[0]}')"><div class="pt">${m[1]} ${m[2]}</div><div class="sw ${r.settings.modes[m[0]]?'on':''}"></div></div>`).join("")}
+      ${modes.map(m=>`<div class="pill" onclick="setMode('${m[0]}')"><div><div class="pt">${m[1]} ${m[2]}</div><div class="pd">${m[3]}</div></div><div class="sw ${r.settings.modes[m[0]]?'on':''}"></div></div>`).join("")}
     </div>`;
   const settingsGuest=`<div class="card"><div class="h">⚙️ Ayarlar</div>
-     <div class="sub">${r.settings.rounds} tur · ${r.settings.timer} sn · açık modlar: ${modes.filter(m=>r.settings.modes[m[0]]).map(m=>m[1]).join(" ")}</div>
+     <div class="sub">${r.settings.rounds} tur · ${r.settings.timer} sn</div>
+     ${modes.filter(m=>r.settings.modes[m[0]]).map(m=>`<div class="pill" style="pointer-events:none"><div><div class="pt">${m[1]} ${m[2]}</div><div class="pd">${m[3]}</div></div></div>`).join("")}
      <div class="sub" style="margin-top:8px">Ayarları kurucu belirler.</div></div>`;
   return `
   <div class="brand"><h1 style="font-size:20px">LOBİ</h1><small>arkadaşların katılınca başlayın</small></div>
@@ -593,8 +620,8 @@ function viewValidating(){return `<div class="center"><div class="loader"></div>
 function viewReveal(){
   const r=state.room, rd=r.round, res=rd.results, M=r.settings.modes, host=amHost();
   const cats=(rd.catIds||[]).map(getCat), players=Object.entries(r.players);
-  const ans=rd.answers||{};
-  const myTokenUsed = res.sab && res.sab[state.myId];
+  const ans=rd.answers||{}, disputes=rd.disputes||{}, overrides=(res.overrides||{});
+  const nameOf=(id)=>(r.players[id]&&r.players[id].name)||"?";
   const blocks=cats.map(c=>{
     const L=rd.catLetter[c.id], j=JOKER.has(L), isBomb=M.bomba&&c.id===rd.bomb;
     const cells=players.map(([pid,p])=>{
@@ -602,17 +629,29 @@ function viewReveal(){
       const ok=res.valid&&res.valid[pid]&&res.valid[pid][c.id];
       const uv=res.unver&&res.unver[pid]&&res.unver[pid][c.id];
       const themeOn=res.theme&&res.theme[pid]&&res.theme[pid][c.id];
-      const base=(res.cellPts&&res.cellPts[pid]&&res.cellPts[pid][c.id])||0;
-      const disp=base; // tema/sabotaj roundScore'a canlı işleniyor; hücrede taban gösterilir
+      const key=pid+"__"+c.id;
+      const flipped=Object.prototype.hasOwnProperty.call(overrides,key);
+      const disp=(res.cellPts&&res.cellPts[pid]&&res.cellPts[pid][c.id])||0;
       const cls=disp>0?"p":(disp<0?"neg":"z");
+      let dispute="";
+      const d=disputes[key];
+      if(d){
+        const wl=d.want==="ok"?"doğru say":"yanlış say";
+        if(d.by===state.myId) dispute=`<button class="minibtn" onclick="cancelFlip('${key}')" title="geri al">⏳ ${wl}</button>`;
+        else if(d.approvals&&d.approvals[state.myId]) dispute=`<span class="minibtn on">✓ onayladın</span>`;
+        else dispute=`<button class="minibtn go" onclick="approveFlip('${key}')" title="${esc(nameOf(d.by))}: ${wl}">👍 onayla</button>`;
+      } else if(w){
+        if(ok) dispute=`<button class="minibtn" onclick="proposeFlip('${pid}','${c.id}','bad')" title="yanlış say (grup onayıyla)">🚩</button>`;
+        else dispute=`<button class="minibtn" onclick="proposeFlip('${pid}','${c.id}','ok')" title="doğru say (grup onayıyla)">✋</button>`;
+      }
       return `<div class="acell">
         <span class="nm" style="color:${p.color}">${esc(p.name)}${pid===state.myId?' (sen)':''}</span>
         <span class="wd ${ok?'':'bad'}">${w?esc(w):'<i style="opacity:.5">—</i>'}</span>
-        ${uv?'<span class="unv" title="AI doğrulaması yok">?</span>':''}
+        ${uv&&!flipped?'<span class="unv" title="listede yok — grup karar verebilir">?</span>':''}
+        ${flipped?'<span class="unv" style="color:var(--cyan);border-color:var(--cyan)" title="grup kararı">👥</span>':''}
         <span class="mark">${ok?'✅':(w?'❌':'⬜')}</span>
         ${host&&M.tema&&ok?`<button class="minibtn ${themeOn?'on':''}" onclick="hostTheme('${pid}','${c.id}')" title="Temaya uyuyor +3">🌍</button>`:(themeOn?'<span class="minibtn on">🌍</span>':'')}
-        ${!host&&M.sabotaj&&ok&&pid!==state.myId&&!myTokenUsed?`<button class="minibtn" onclick="doSab('${pid}','${c.id}')" title="Bu cevabı çürüt">😈</button>`:''}
-        ${host&&M.sabotaj&&ok&&pid!==state.myId&&!myTokenUsed?`<button class="minibtn" onclick="doSab('${pid}','${c.id}')" title="Bu cevabı çürüt">😈</button>`:''}
+        ${dispute}
         <span class="pts ${cls}">${disp>0?'+':''}${disp}</span>
       </div>`;
     }).join("");
@@ -621,8 +660,8 @@ function viewReveal(){
   }).join("");
   return `
   <div class="brand"><h1 style="font-size:20px">TUR ${rd.n} · SONUÇ</h1></div>
+  <div class="card" style="padding:11px 14px"><div class="sub">🤝 <b>Grup kararı:</b> ✅ yanında <b>🚩</b> = "yanlış say", ❌ yanında <b>✋</b> = "doğru say". Başka bir oyuncu <b>👍 onayla</b> derse değişir. (Örn. listede olmayan bir isim ❌ olduysa sahibi ✋'e basar, biri onaylar → ✅ olur.)</div></div>
   ${M.tema?`<div class="card" style="padding:11px 14px"><div class="sub">🌍 <b style="color:var(--lime)">Tema: ${esc(rd.theme)}</b> — ${host?'uyan cevabın 🌍 rozetine bas, +3 ver.':'kurucu temaya uyan cevaplara +3 verir.'}</div></div>`:''}
-  ${M.sabotaj?`<div class="card" style="padding:11px 14px"><div class="sub">😈 <b>Sabotaj:</b> ${myTokenUsed?'hakkını kullandın.':'bir rakibin ✅ cevabındaki 😈\'a bas — çürütürsen puanı sana geçer (turda 1 hak).'}</div></div>`:''}
   <div class="card">${blocks}</div>
   <div style="margin-top:14px">
     ${host?`<button class="btn lime" onclick="hostFinalize()">📊 Puan tablosuna geç</button>`:`<div class="waitnote">⏳ Kurucu puan tablosuna geçecek…</div>`}
@@ -693,7 +732,7 @@ setInterval(()=>{
     if(rem<=0 && !iSubmitted && r.round) submitMine();
     if(amHost()) maybeValidate();
   }
-  if(r.status==="reveal" && amHost()) applySabotage();
+  if(r.status==="reveal" && amHost()) applyDisputes();
 },1000);
 
 /* ---- başla ---- */
