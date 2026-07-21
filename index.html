@@ -93,7 +93,11 @@
   .clock{font-family:'Bungee',cursive;font-size:34px;color:var(--cyan)}
   .clock.warn{color:var(--danger);animation:pl .5s infinite}
   @keyframes pl{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
-  .qline{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+  .qwrap{border-bottom:1px solid var(--line)}
+  .qline{display:flex;align-items:center;gap:10px;padding:9px 0}
+  .jokbtn{flex:none;width:32px;height:32px;border-radius:9px;background:rgba(255,210,63,.16);border:1px solid rgba(255,210,63,.4);font-size:15px;color:var(--gold)}
+  .jokbtn:active{transform:scale(.92)}
+  .hintline{font-size:13px;font-weight:600;color:var(--gold);letter-spacing:1px;padding:0 0 9px 8px}
   .qline .cat{flex:none;width:116px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px}
   .catmini{font-size:10px;color:var(--muted);display:block;font-weight:400}
   .letterbadge{flex:none;width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-family:'Bungee',cursive;font-size:14px;background:rgba(34,230,255,.16);color:var(--cyan)}
@@ -198,6 +202,7 @@ const SURPRISE=[
  {id:"oyun",name:"Video Oyunu",icon:"🎮",open:true},{id:"dizi",name:"Dizi",icon:"📺",open:true},
  {id:"kahraman",name:"Süper Kahraman",icon:"🦸",open:true},{id:"renk",name:"Renk",icon:"🎨",list:"renk"},
  {id:"spor",name:"Spor Dalı",icon:"⚽",open:true},{id:"marka2",name:"Araba Markası",icon:"🚗",open:true},
+ {id:"ingilizce",name:"İngilizce Kelime",icon:"🔤",open:true},{id:"eskiturkce",name:"Eski Türkçe Kelime",icon:"📜",open:true},
 ];
 const ALLCATS={}; CATS.concat(SURPRISE).forEach(c=>ALLCATS[c.id]=c);
 function getCat(id){return ALLCATS[id];}
@@ -245,7 +250,7 @@ async function askAI(need){
 /* ================= Firebase katmanı ================= */
 let db=null, serverOffset=0;
 const state={ myId:Math.random().toString(36).slice(2,10), name:"", code:"", room:null };
-let hostBusy=false, iSubmitted=false, myAnswers={}, lastPlayN=null;
+let hostBusy=false, iSubmitted=false, myAnswers={}, lastPlayN=null, jokerUsed=false, jokerHint=null, slotAnimatedFor=null;
 const ui={screen:null, roundN:null};
 
 if(configReady()){
@@ -270,7 +275,7 @@ async function createRoom(){
     state.code=code;
     await roomRef().set({
       host:state.myId, status:"lobby", createdAt:SV_TS(),
-      settings:{rounds:5,timer:90,modes:{cifte:true,joker:true,bomba:true,surpriz:true,tema:true,seri:true}},
+      settings:{rounds:5,timer:90,modes:{cifte:true,joker:true,ipucu:true,bomba:true,surpriz:true,tema:true,seri:true}},
       players:{ [state.myId]:{name:state.name,color:AV_COLORS[0],score:0,joinedAt:SV_TS()} }
     });
     attachRoom();
@@ -453,7 +458,7 @@ function render(){
   if(st==="playing"){
     if(ui.screen==="playing" && ui.roundN===r.round.n){ lightPlaying(); return; }
     ui.screen="playing"; ui.roundN=r.round.n;
-    if(lastPlayN!==r.round.n){ lastPlayN=r.round.n; iSubmitted=false; myAnswers={}; }
+    if(lastPlayN!==r.round.n){ lastPlayN=r.round.n; iSubmitted=false; myAnswers={}; jokerUsed=false; jokerHint=null; }
     app().innerHTML=viewPlaying(); mountPlaying(); return;
   }
   ui.screen=st; ui.roundN=r.round?r.round.n:null;
@@ -519,6 +524,7 @@ function viewLobby(){
   const modes=[
     ["cifte","🎲","Çifte Harf","İki harf çekilir, kategoriler ikiye bölünür"],
     ["joker","🎯","Joker Harf","Zor harf (F J V Z Ç P) gelirse o sütun 2 kat puan"],
+    ["ipucu","💡","İpucu Jokeri","Takıldığın liste kategorisinde 💡'e bas: bir cevabın ilk+son harfi ve uzunluğu görünür (tur başına 1 hak)"],
     ["bomba","💣","Bomba Kategori","Gizli bir kategoriyi boş bırakan −5 yer"],
     ["surpriz","🎁","Sürpriz Kategori","Her tur değişen ekstra başlık (film, şarkı, marka…)"],
     ["tema","🌍","Tema Turu","Temaya uyan cevaba kurucu +3 verir"],
@@ -582,10 +588,16 @@ function viewPlaying(){
   if(r.settings.modes.surpriz){const sc=cats[cats.length-1];chips.push(`<div class="chip surprise">🎁 <b>${sc.name}</b></div>`);}
   if(r.settings.modes.tema)chips.push(`<div class="chip theme">🌍 <b>${esc(rd.theme)}</b></div>`);
   if(r.settings.modes.bomba)chips.push(`<div class="chip bombchip">💣 gizli bomba</div>`);
+  const ip=r.settings.modes.ipucu;
+  const canHint=(c,L)=> ip && c.list && LISTS[c.list] && LISTS[c.list].split(/\s+/).some(w=>firstChar(w)===firstChar(L));
   const rows=cats.map((c,i)=>{const L=rd.catLetter[c.id];const j=JOKER.has(L);
-    return `<div class="qline"><div class="cat">${c.icon} <span>${c.name}${c.open?'<span class="catmini">serbest</span>':''}</span></div>
+    const showBtn = !jokerUsed && canHint(c,L);
+    const thisHint = (jokerHint&&jokerHint.cid===c.id)?jokerHint.text:null;
+    return `<div class="qwrap"><div class="qline"><div class="cat">${c.icon} <span>${c.name}${c.open?'<span class="catmini">serbest</span>':''}</span></div>
       <div class="letterbadge ${j?'j':''}">${L}</div>
-      <input class="ans" id="a_${c.id}" autocomplete="off" autocapitalize="words" spellcheck="false" value="${esc(myAnswers[c.id]||'')}" placeholder="${L}…"></div>`;
+      <input class="ans" id="a_${c.id}" autocomplete="off" autocapitalize="words" spellcheck="false" value="${esc(myAnswers[c.id]||'')}" placeholder="${L}…">
+      ${showBtn?`<button class="jokbtn" onclick="useJoker('${c.id}')" title="İpucu (tur başına 1 hak)">💡</button>`:''}</div>
+      ${thisHint?`<div class="hintline">💡 ${thisHint}</div>`:''}</div>`;
   }).join("");
   return `
   <div class="clockbar"><span class="clock" id="ptimer">${Math.max(0,remaining())}</span><span class="sub">sn · ${subN}/${players.length} gönderdi</span></div>
@@ -602,10 +614,25 @@ function viewPlaying(){
 function mountPlaying(){
   const rd=state.room.round;
   (rd.catIds||[]).forEach(cid=>{const e=document.getElementById("a_"+cid); if(e)e.oninput=ev=>myAnswers[cid]=ev.target.value;});
-  // slot animasyonu
+  if(slotAnimatedFor===rd.n){ rd.letters.forEach((l,i)=>{const s=document.getElementById("slot"+i);if(s)s.classList.remove("spin");const e=document.getElementById("lt"+i);if(e)e.textContent=l;}); return; }
+  slotAnimatedFor=rd.n;
   let t=0;const mx=16;
   const iv=setInterval(()=>{rd.letters.forEach((_,i)=>{const e=document.getElementById("lt"+i);if(e)e.textContent=HARFLER[Math.floor(Math.random()*HARFLER.length)];});t++;
     if(t>=mx){clearInterval(iv);rd.letters.forEach((l,i)=>{const e=document.getElementById("lt"+i);if(e)e.textContent=l;const s=document.getElementById("slot"+i);if(s)s.classList.remove("spin");});}},70);
+}
+window.useJoker=(cid)=>{
+  if(jokerUsed) return;
+  const c=getCat(cid), L=state.room.round.catLetter[cid];
+  if(!c||!c.list||!LISTS[c.list]) return;
+  const cands=LISTS[c.list].split(/\s+/).filter(w=>firstChar(w)===firstChar(L));
+  jokerHint = cands.length ? {cid,text:hintOf(cands[Math.floor(Math.random()*cands.length)])} : {cid,text:"bu harf için ipucu yok"};
+  jokerUsed=true; ui.roundN=null; render();
+};
+function hintOf(w){
+  const ch=[...w];
+  const first=ch[0].toLocaleUpperCase('tr'), last=ch[ch.length-1].toLocaleUpperCase('tr');
+  const mid = ch.length>2 ? '·'.repeat(ch.length-2) : '';
+  return `${first}${mid}${last} · ${ch.length} harf`;
 }
 function lightPlaying(){
   const r=state.room, rd=r.round, players=Object.keys(r.players||{}), sub=rd.submitted||{}, subN=players.filter(id=>sub[id]).length;
