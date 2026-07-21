@@ -261,28 +261,32 @@ function genCode(){let s="";for(let i=0;i<4;i++)s+=CODE_CHARS[Math.floor(Math.ra
 
 async function createRoom(){
   if(!state.name){alert("Önce bir isim yaz.");return;}
-  let code, tries=0;
-  do{ code=genCode(); tries++; const snap=await db.ref("rooms/"+code).get(); if(!snap.exists())break; }while(tries<6);
-  state.code=code;
-  await roomRef().set({
-    host:state.myId, status:"lobby", createdAt:SV_TS(),
-    settings:{rounds:5,timer:90,modes:{joker:true,bomba:true,cifte:true,surpriz:true,seri:true,tema:true,sabotaj:true}},
-    players:{ [state.myId]:{name:state.name,color:AV_COLORS[0],score:0,joinedAt:SV_TS()} }
-  });
-  attachRoom();
+  try{
+    let code, tries=0;
+    do{ code=genCode(); tries++; const snap=await db.ref("rooms/"+code).once("value"); if(!snap.exists())break; }while(tries<6);
+    state.code=code;
+    await roomRef().set({
+      host:state.myId, status:"lobby", createdAt:SV_TS(),
+      settings:{rounds:5,timer:90,modes:{joker:true,bomba:true,cifte:true,surpriz:true,seri:true,tema:true,sabotaj:true}},
+      players:{ [state.myId]:{name:state.name,color:AV_COLORS[0],score:0,joinedAt:SV_TS()} }
+    });
+    attachRoom();
+  }catch(e){ alert("Oda kurulamadı: "+((e&&e.message)||e)); }
 }
 async function joinRoom(){
   if(!state.name){alert("Önce bir isim yaz.");return;}
   const code=(state.code||"").toUpperCase();
   if(code.length<4){alert("4 haneli oda kodunu gir.");return;}
   state.code=code;
-  const snap=await db.ref("rooms/"+code).get();
-  if(!snap.exists()){alert("Böyle bir oda yok. Kodu kontrol et.");return;}
-  const r=snap.val();
-  if(r.status!=="lobby"){alert("Bu odada oyun başlamış, lobiye katılınamıyor.");return;}
-  const idx=Object.keys(r.players||{}).length;
-  await roomRef().child("players/"+state.myId).set({name:state.name,color:AV_COLORS[idx%AV_COLORS.length],score:0,joinedAt:SV_TS()});
-  attachRoom();
+  try{
+    const snap=await db.ref("rooms/"+code).once("value");
+    if(!snap.exists()){alert("Böyle bir oda yok. Kodu kontrol et.");return;}
+    const r=snap.val();
+    if(r.status!=="lobby"){alert("Bu odada oyun başlamış, lobiye katılınamıyor.");return;}
+    const idx=Object.keys(r.players||{}).length;
+    await roomRef().child("players/"+state.myId).set({name:state.name,color:AV_COLORS[idx%AV_COLORS.length],score:0,joinedAt:SV_TS()});
+    attachRoom();
+  }catch(e){ alert("Katılınamadı: "+((e&&e.message)||e)); }
 }
 function attachRoom(){
   roomRef().child("players/"+state.myId).onDisconnect().remove();
