@@ -223,6 +223,32 @@ isim:"ahmet mehmet mustafa ali hasan hüseyin ibrahim osman ömer yusuf murat em
 };
 const LISTSET={}; for(const k in LISTS){LISTSET[k]=new Set(LISTS[k].split(/\s+/).map(trNorm));}
 
+/* ---- Bot havuzları (serbest kategoriler için) ---- */
+const BOT_NAMES=["Zıpır","Turbo","Fıstık","Roket","Şimşek","Kaos"];
+const BOT_SEED={
+ turkunlu:"atatürk tarkan sezen aksu barış manço müslüm gürses ajda pekkan cem yılmaz kıvanç tatlıtuğ beren saat haluk bilginer türkan şoray kemal sunal orhan gencebay ibrahim tatlıses hadise murat boz sıla teoman demet akalın hülya avşar acun ılıcalı fatih terim arda turan mesut özil edis nilüfer kadir inanır zeki müren adile naşit yıldız tilbe emre altuğ şener şen ferdi tayfur ebru gündeş gülben ergen",
+ yabanci:"michael jackson madonna beyonce rihanna adele shakira eminem drake ronaldo messi neymar beckham federer nadal einstein newton tesla edison mozart beethoven picasso leonardo shakespeare napolyon gandhi mandela obama elon musk steve jobs jennifer lopez tom cruise brad pitt angelina jolie will smith johnny depp emma watson keanu reeves lady gaga",
+ marka:"arçelik beko vestel bim migros ülker eti turkcell vodafone ford fiat renault toyota honda mercedes audi apple samsung sony nike adidas puma zara mango koton mavi nestle pepsi lego bosch siemens philips xiaomi huawei defacto opel peugeot dyson lc waikiki gillette colgate",
+ film:"batman titanik matrix avatar joker gladyatör başlangıç interstellar deadpool nemo esaretin bedeli forrest gump yıldız savaşları kayıp balık rocky terminatör örümcek adam yüzüklerin efendisi babam ve oğlum eşkıya",
+ sarki:"şımarık dağlar gülpembe kumsalda bir derdim var deli deli olma sarı çizmeli lolipop unutamadım yalnızlık senfonisi aşkın olayım fırtına hoşgeldin kal benim için gel gündüz gece hayat bayram olsa mektup ben bilirim",
+ kitap:"suç ve ceza savaş ve barış sefiller anna karenina kürk mantolu madonna çalıkuşu tutunamayanlar beyaz gemi yaban simyacı dönüşüm yabancı otomatik portakal hayvan çiftliği körlük ince memed sinekli bakkal aylak adam martı",
+ oyun:"minecraft fortnite tetris pubg valorant zelda mario pacman fifa gta roblox counter strike overwatch sims doom halo portal witcher fallout",
+ dizi:"friends lost dallas breaking bad game of thrones sherlock dark narcos ezel kurtlar vadisi çukur muhteşem yüzyıl yaprak dökümü avrupa yakası dexter house prison break",
+ kahraman:"batman superman örümcek adam demir adam thor hulk flaş kaptan amerika kara şimşek yeşil fener kara dul şahin göz kara panter doktor strange wolverine",
+ spor:"basketbol futbol voleybol tenis yüzme boks güreş hentbol koşu badminton golf kayak masa tenisi eskrim halter judo karate okçuluk bisiklet atletizm",
+ marka2:"audi bmw mercedes ford fiat renault toyota honda volvo opel peugeot tesla nissan hyundai kia mazda skoda seat citroen jaguar",
+ ingilizce:"apple book cat dog elephant fish green house jump king love moon night orange people queen red sun table umbrella voice water yellow zebra music garden window silver train paper flower river mountain summer winter school teacher family friend happy strong bridge candle dream engine forest golden hunter island jacket kitchen letter market number ocean pencil rabbit shadow tiger under village wonder",
+ eskiturkce:"acele akıbet amel asayiş bedbaht beyan cebir cehalet cesaret define derya devran ebedi edep ecel efkar elem emanet esas evvel fani fazilet felaket ferman fikir gaflet garip gayret hakikat hasret hayal hicran hüzün ibret icap idrak ihtiyar ikbal ilim inayet irfan istikbal izzet kader kanaat kasvet kelam keramet kudret lütuf maarif mahzun makam malumat marifet mazi medeniyet menfaat merhamet mesele muamma muhabbet murat mübarek mücadele müşkül nasip nazar nefis nimet nutuk rahmet rica sabır sadakat safa selamet sema sükut şefkat şükran takdir talih tefekkür tesadüf teselli tevazu ufuk vakit vefa veda zahmet zarafet zeval zulüm",
+};
+function trCap(w){ return (w||"").charAt(0).toLocaleUpperCase("tr")+(w||"").slice(1); }
+function humanIds(r){ return Object.keys(r.players||{}).filter(id=>!(r.players[id]&&r.players[id].isBot)); }
+function botCandidates(c,letter){
+  const f=firstChar(letter); let pool=[];
+  if(c.list && LISTS[c.list]) pool=LISTS[c.list].split(/\s+/);
+  else if(BOT_SEED[c.id]) pool=BOT_SEED[c.id].split(/\s+/);
+  return pool.filter(w=>firstChar(w)===f);
+}
+
 /* ---- Doğrulama (hibrit) ---- */
 function localVerdict(cat,letter,word){
   if(!word) return false;
@@ -321,17 +347,32 @@ function hostReact(){
 }
 function maybeValidate(){
   const r=state.room; if(hostBusy||r.status!=="playing"||!r.round) return;
-  const players=Object.keys(r.players||{});
-  if(!players.length) return;
+  const humans=humanIds(r);
+  if(!humans.length) return;
   const sub=r.round.submitted||{};
-  const allIn=players.every(id=>sub[id]);
+  const allIn=humans.every(id=>sub[id]);
   const timeUp=r.round.startAt && now()>r.round.startAt+r.settings.timer*1000+1500;
   if(allIn||timeUp){ hostBusy=true; runValidation(); }
 }
 async function runValidation(){
   await roomRef().child("status").set("validating");
   const r=state.room, cats=(r.round.catIds||[]).map(getCat), cl=r.round.catLetter, players=Object.keys(r.players);
-  const ans=r.round.answers||{};
+  const ans=Object.assign({},r.round.answers||{});
+  // botların cevaplarını üret (listeler + seed havuzları), sonra kaydet
+  const botUpd={};
+  players.forEach(pid=>{
+    if(!r.players[pid].isBot) return;
+    ans[pid]=Object.assign({},ans[pid]||{});
+    cats.forEach(c=>{
+      const L=cl[c.id];
+      const skip=Math.random()<(JOKER.has(L)?0.5:0.2);
+      let w="";
+      if(!skip){ const cands=botCandidates(c,L); if(cands.length) w=trCap(cands[Math.floor(Math.random()*cands.length)]); }
+      ans[pid][c.id]=w; botUpd["round/answers/"+pid+"/"+c.id]=w;
+    });
+    botUpd["round/submitted/"+pid]=true;
+  });
+  if(Object.keys(botUpd).length){ await roomRef().update(botUpd); r.round.answers=ans; }
   const baseValid={},unver={},need=[];
   players.forEach(pid=>{baseValid[pid]={};unver[pid]={};
     cats.forEach(c=>{const w=(ans[pid]&&ans[pid][c.id])||"";const v=localVerdict(c,cl[c.id],w);
@@ -371,10 +412,11 @@ function computeScores(r,res){
 function applyDisputes(){
   const r=state.room; if(hostBusy||!r.round||!r.round.results) return;
   const disp=r.round.disputes||{};
+  const solo=humanIds(r).length<=1;
   let hit=null;
   for(const key in disp){ const d=disp[key]; if(!d) continue;
     const ap=d.approvals||{};
-    if(Object.keys(ap).some(aid=>ap[aid] && aid!==d.by)){ hit={key,d}; break; } }
+    if(solo||Object.keys(ap).some(aid=>ap[aid] && aid!==d.by)){ hit={key,d}; break; } }
   if(!hit) return;
   hostBusy=true;
   const res=r.round.results; res.overrides=res.overrides||{};
@@ -516,10 +558,12 @@ function viewLobby(){
   const r=state.room, host=amHost();
   const players=Object.entries(r.players||{});
   const plist=players.map(([id,p])=>`
-    <div class="pchip"><div class="av" style="background:${p.color}">${initials(p.name)}</div>
+    <div class="pchip"><div class="av" style="background:${p.color}">${p.isBot?'🤖':initials(p.name)}</div>
       <div class="nm">${esc(p.name)}</div>
+      ${p.isBot?'<span class="badge you" style="background:rgba(160,107,255,.2);color:#c9a6ff">BOT</span>':''}
       ${id===r.host?'<span class="badge host">👑 KURUCU</span>':''}
       ${id===state.myId?'<span class="badge you">SEN</span>':''}
+      ${host&&p.isBot?`<button class="minibtn" onclick="removeBot('${id}')" title="botu çıkar">✕</button>`:''}
     </div>`).join("");
   const modes=[
     ["cifte","🎲","Çifte Harf","İki harf çekilir, kategoriler ikiye bölünür"],
@@ -552,12 +596,13 @@ function viewLobby(){
   <div class="card">
     <div class="h">👥 Oyuncular (${players.length})</div>
     ${plist}
-    ${players.length<2?'<div class="sub" style="margin-top:10px">En az 2 oyuncu bekleniyor…</div>':''}
+    ${host?`<div style="margin-top:12px"><button class="btn ghost sm" onclick="addBot()" ${players.length>=6?'disabled':''}>🤖 Bot Ekle</button></div>`:''}
+    ${players.length<2?`<div class="sub" style="margin-top:10px">Arkadaşların katılsın ya da <b>🤖 Bot Ekle</b> ile tek başına oyna.</div>`:''}
   </div>
   ${host?settingsHost:settingsGuest}
   <div style="margin-top:16px">
     ${host
-      ? `<button class="btn lime" onclick="hostStart()" ${players.length<2?'disabled':''}>🎬 BAŞLAT</button>`
+      ? `<button class="btn lime" onclick="hostStart()">🎬 BAŞLAT</button>`
       : `<div class="waitnote">⏳ Kurucunun başlatması bekleniyor…</div>`}
   </div>
   <div style="margin-top:10px"><button class="btn ghost sm" onclick="leaveRoom()">Odadan çık</button></div>`;
@@ -565,6 +610,15 @@ function viewLobby(){
 window.setRounds=(d)=>{if(!amHost())return;const v=Math.max(1,Math.min(15,state.room.settings.rounds+d));roomRef().child("settings/rounds").set(v);};
 window.setTimer=(d)=>{if(!amHost())return;const v=Math.max(30,Math.min(180,state.room.settings.timer+d));roomRef().child("settings/timer").set(v);};
 window.setMode=(k)=>{if(!amHost())return;roomRef().child("settings/modes/"+k).set(!state.room.settings.modes[k]);};
+window.addBot=()=>{
+  if(!amHost())return;
+  const r=state.room, ids=Object.keys(r.players||{});
+  if(ids.length>=6)return;
+  const n=ids.filter(id=>r.players[id].isBot).length;
+  const id="bot_"+Math.random().toString(36).slice(2,8);
+  roomRef().child("players/"+id).set({name:BOT_NAMES[n%BOT_NAMES.length],isBot:true,color:AV_COLORS[ids.length%AV_COLORS.length],score:0,joinedAt:SV_TS()});
+};
+window.removeBot=(id)=>{ if(!amHost())return; if(state.room.players[id]&&state.room.players[id].isBot) roomRef().child("players/"+id).remove(); };
 window.hostStart=hostStart;
 
 /* ---- PLAYING ---- */
@@ -572,7 +626,7 @@ function viewPlaying(){
   const r=state.room, rd=r.round;
   const cats=(rd.catIds||[]).map(getCat);
   const two=rd.letters.length===2, jokerOn=rd.letters.some(l=>JOKER.has(l));
-  const players=Object.keys(r.players||{}), sub=rd.submitted||{}, subN=players.filter(id=>sub[id]).length;
+  const players=humanIds(r), sub=rd.submitted||{}, subN=players.filter(id=>sub[id]).length;
 
   if(iSubmitted){
     return `<div class="center">
@@ -635,7 +689,7 @@ function hintOf(w){
   return `${first}${mid}${last} · ${ch.length} harf`;
 }
 function lightPlaying(){
-  const r=state.room, rd=r.round, players=Object.keys(r.players||{}), sub=rd.submitted||{}, subN=players.filter(id=>sub[id]).length;
+  const r=state.room, rd=r.round, players=humanIds(r), sub=rd.submitted||{}, subN=players.filter(id=>sub[id]).length;
   const cnt=document.querySelector(".clockbar .sub"); if(cnt)cnt.textContent=`sn · ${subN}/${players.length} gönderdi`;
 }
 function remaining(){const r=state.room;if(!r||!r.round||!r.round.startAt)return r&&r.settings?r.settings.timer:0;return Math.ceil((r.round.startAt+r.settings.timer*1000-now())/1000);}
@@ -672,7 +726,7 @@ function viewReveal(){
         else dispute=`<button class="minibtn" onclick="proposeFlip('${pid}','${c.id}','ok')" title="doğru say (grup onayıyla)">✋</button>`;
       }
       return `<div class="acell">
-        <span class="nm" style="color:${p.color}">${esc(p.name)}${pid===state.myId?' (sen)':''}</span>
+        <span class="nm" style="color:${p.color}">${p.isBot?'🤖 ':''}${esc(p.name)}${pid===state.myId?' (sen)':''}</span>
         <span class="wd ${ok?'':'bad'}">${w?esc(w):'<i style="opacity:.5">—</i>'}</span>
         ${uv&&!flipped?'<span class="unv" title="listede yok — grup karar verebilir">?</span>':''}
         ${flipped?'<span class="unv" style="color:var(--cyan);border-color:var(--cyan)" title="grup kararı">👥</span>':''}
@@ -707,7 +761,7 @@ function viewScore(){
     const streak=res.streak&&res.streak[id];
     return `<div class="lb-row ${rank===0?'lead':''} ${id===state.myId?'me':''}">
       <div class="rk">${medal}</div><div class="av" style="background:${p.color}">${initials(p.name)}</div>
-      <div class="nm">${esc(p.name)}<div class="delta">+${delta} bu tur ${streak?'<span class="streakbadge">🔥 SERİ +15</span>':''}</div></div>
+      <div class="nm">${p.isBot?'🤖 ':''}${esc(p.name)}<div class="delta">+${delta} bu tur ${streak?'<span class="streakbadge">🔥 SERİ +15</span>':''}</div></div>
       <div class="sc">${p.score||0}</div></div>`;
   }).join("");
   return `
@@ -727,7 +781,7 @@ function viewGameOver(){
   const champ=order[0][1];
   const rows=order.map(([id,p],i)=>`<div class="lb-row ${i===0?'lead':''} ${id===state.myId?'me':''}">
     <div class="rk">${["🥇","🥈","🥉"][i]||(i+1)}</div><div class="av" style="background:${p.color}">${initials(p.name)}</div>
-    <div class="nm">${esc(p.name)}</div><div class="sc">${p.score||0}</div></div>`).join("");
+    <div class="nm">${p.isBot?'🤖 ':''}${esc(p.name)}</div><div class="sc">${p.score||0}</div></div>`).join("");
   return `
   <div class="center" style="min-height:auto">
     <div style="text-align:center;margin-top:8px"><div style="font-size:54px">🏆</div>
